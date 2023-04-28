@@ -14,6 +14,7 @@ After defining the target class and setting the optimization control parameters,
 This function finds the best solution where it maximizes the loss which would be the best pixel location to modify. 
 With the optimized pixel location, the color of the pixel is changed to red color and outputs a modified image that would fool the classifier. 
 <br> 
+
 #Testing, Correctness, Verification
 <br> 
 The One Pixel Algorithm was tested with multiple images to see if it fools the classifier. 
