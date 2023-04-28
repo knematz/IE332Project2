@@ -1,1 +1,31 @@
 #Use as main file
+res=c("","")
+f=list.files("./grass")
+for (i in f){
+  test_image <- image_load(paste("./grass/",i,sep=""),
+                           target_size = target_size)
+  x <- image_to_array(test_image)
+  x <- array_reshape(x, c(1, dim(x)))
+  x <- x/255
+  pred <- model %>% predict(x)
+  if(pred[1,2]<0.50){
+    print(i)
+  }
+}
+
+res=c("","")
+f=list.files("C:\\Users\\kylen\\OneDrive - purdue.edu\\Documents\\IE332Project2\\alldata\\train\\dandelions")
+for (i in f){
+  #test_image <- image_load(paste("./dandelions/",i,sep=""),
+                         #  target_size = target_size)
+  #x <- image_to_array(test_image)
+ # x <- array_reshape(x, c(1, dim(x)))
+ # x <- x/255
+  pred <- model %>% predict(img)
+  if(pred[1,1]<0.50){
+    print(i)
+  }
+}
+print(res)
+pred <- model %>% predict(modified_image)
+print(pred)
