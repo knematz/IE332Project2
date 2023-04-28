@@ -1,0 +1,78 @@
+#load libraries for algorithm
+library(jpeg)
+library(matrixStats)
+setwd("/Users/clarat01/Documents/2023 Spring Semester/IE 332/project 2/all data/train")
+
+#input image
+image_path <- "./grass/zoysia-grass-2723693948.jpg" 
+image <- readJPEG(image_path)
+
+#create function for projected gradient descent
+projected_gradient_descent <- function(image_path, pixels_percent, max_iterations = 1000, step_size = 0.01) {
+
+  
+  #calculate dimensions of the image
+  num_rows <- dim(image)[1]
+  num_cols <- dim(image)[2]
+  
+  #calculate the number of pixels to change
+  num_pixels <- floor(num_rows * num_cols * pixels_percent / 100)
+  
+  #turn image into vector
+  image_vector <- as.vector(image)
+  
+  #initialize perturbation vector
+  perturbation <- rep(0, length(image_vector))
+  
+  #for loop for PGD
+  for (i in 1:max_iterations) {
+    
+    #calculate the gradient of the perturbation
+    gradient <- sign(perturbation)
+    
+    #perturbation vector
+    perturbation <- perturbation - step_size * gradient
+    
+    #perturbation vector projected onto L-infinity ball with radius 1
+    perturbation <- pmax(pmin(perturbation, 1), -1)
+    
+    #perturbed image calculated
+    perturbed_image <- image_vector + perturbation
+    
+    #perturbed image range [0,1]
+    perturbed_image <- pmax(pmin(perturbed_image, 1), 0)
+    
+    #determine difference between original and perturbed image
+    image_diff <- perturbed_image - image_vector
+    
+    #determine indices to change from absolute difference
+    indices_change <- order(abs(image_diff), decreasing = TRUE)[1:num_pixels]
+    
+    #change the image vector from the indices_change
+    image_vector[indices_change] <- perturbed_image[indices_change]
+    
+    #convert vector to matrix
+    perturbed_image <- matrix(image_vector, nrow = num_rows, ncol = num_cols)
+    
+    #show perturbed image
+    if (i %% 100 == 0) {
+      plot(as.raster(perturbed_image))
+      title(paste("Iteration:", i))
+    }
+  }
+  
+  #return perturbed image
+  return(perturbed_image)
+}
+
+#grass input image
+image_path <- "./grass/zoysia-grass-2723693948.jpg"
+pixels_percent <- 1 
+max_iterations <- 1000
+step_size <- 0.01 
+
+#calling PGD function
+perturbed_image <- projected_gradient_descent(image_path, pixels_percent, max_iterations, step_size)
+
+#saving perturbed image
+writeJPEG(perturbed_image, "./grass/perturbed_image.jpg")
