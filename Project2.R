@@ -1,0 +1,100 @@
+#load the required libraries
+library(randomForest)
+library(magrittr)
+library(tidyverse)
+library(keras)
+library(tensorflow)
+library(reticulate)
+
+install.packages("tensorflow")
+install.packages("keras")
+
+#set working directory to where all picture are saved
+setwd("C:\\Users\\Riya\\OneDrive - purdue.edu\\Classes_Spring 2023\\IE 332\\Project 2\\All_Data")
+label_list <- dir("train/")
+output_n <- length(label_list)
+save(label_list, file="label_list.R")
+
+Model_image<-load_model_tf("./dandelion_model")
+
+# rescaled image sizes
+width <- 224
+height <- 224
+target_size <- c(width, height)
+rgb <- 3 #color channels
+
+#define the preprocessing data
+path_train <- "/train/"
+train_data_gen <- image_data_generator(rescale = 1/255, validation_split = 0.2)
+
+# create 2 objects fof the training and validation data
+train_data <- flow_images_from_directory(path_train, train_data_gen, subset = 'training', target_size = target_size, class_mode = "categorical", shuffle = F, classes = label_list, seed = 2021)
+
+test_data <- flow_images_from_directory(path_train, train_data_gen, subset = 'validation', target_size = target_size, class_mode = "categorical", classes = label_list, seed = 2021)
+
+table(train_images$classes)
+
+plot(as.raster(train_images[[1]][[1]][17]))
+
+#create weighted majority classifier
+# Weights will be assigned based on the frequency of each class in the training set
+class_weights <- table(train_data$Model_image) / nrow(train_data)
+
+# Define the weighted majority classifier function
+wm_classifier <- function(new_data) {
+  predicted_class <- names(sort(table(train_data$Model_image[new_data$Model_image == train_data$Model_image], 
+                                      dnn = "predicted_class"), decreasing = TRUE))[1]
+  return(predicted_class)
+}
+
+# Test the weighted majority classifier on the test set
+test_data %>% 
+  mutate(pred_Model_image = sapply(1:nrow(test_data), function(i) wm_classifier(test_data[i, ]))) %>% 
+  summarise(accuracy = mean(pred_Model_image == Model_image))
+
+# create a function to change the pixels in the image
+# Define a function to generate a perturbed image
+perturb_image <- function(image, perturbation_prob = 0.01) {
+  # Randomly select pixels to perturb based on the perturbation probability
+  perturb_pixels <- sample(length(image), round(perturbation_prob*length(image)))
+  
+  # Perturb the selected pixels by adding a random noise value
+  perturbed_image <- image
+  perturbed_image[perturb_pixels] <- perturbed_image[perturb_pixels] + rnorm(length(perturb_pixels))
+  
+  return(perturbed_image)
+}
+
+#generate a set of all the distorted images
+# Generate a set of perturbed images
+n_perturbed_images <- 100
+perturbed_images <- list()
+for (i in 1:n_perturbed_images) {
+  perturbed_images[[i]] <- perturb_image(train_data[1, -5])
+}
+
+#create random forest algorithm
+# Create a new training set by adding the perturbed images
+new_train_data <- rbind(train_data, do.call(rbind, perturbed_images)) %>%
+  mutate(perturbed = c(rep(FALSE, nrow(train_data)), rep(TRUE, n_perturbed_images)))
+
+# Train a random forest classifier on the new training set
+rf_model <- randomForest(Model_image ~ ., data = new_train_data, importance = TRUE)
+
+# Evaluate performance
+# Test the random forest classifier on the test set
+test_data %>% 
+  mutate(pred_Model_image = predict(rf_model, newdata = test_data[, -5]), perturbed = FALSE) %>% 
+  rbind(data.frame(Model_image = train_data$Model_image, perturbed = FALSE, pred_Model_image = predict(rf_model, 
+                                                                                                       newdata = train_data[, -5]))) %>% 
+  rbind(data.frame(Model_image = train_data$Model_image, perturbed = TRUE, pred_Model_image = predict(rf_model, 
+                                                                                                      newdata = do.call(rbind, perturbed_images)))) %>% 
+  filter(perturbed == FALSE) %>% 
+  group_by(Model_image, perturbed) %>% 
+  summarise(accuracy = mean(Model_image == pred_Model_image)) %>% 
+  ungroup() %>% 
+  filter(perturbed == FALSE) %>% 
+  summarise(mean_accuracy = mean(accuracy))
+
+# Output the feature importance values from the random forest model
+varImpPlot(rf_model)
