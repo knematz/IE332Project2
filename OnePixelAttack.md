@@ -1,5 +1,6 @@
 # IE332Project2
 # INTRO - One Pixel Attack
+\\
 One Pixel Attack is a type of adversarial attack that can fool machine learning models by modifying a single pixel. 
 Because only one percent of the pixels could be changed, one pixel is chosen since it only changes a single pixel. 
 The algorithm uses an optimization process to find the pixel location and add it to the image. 
@@ -14,6 +15,7 @@ This function finds the best solution where it maximizes the loss which would be
 With the optimized pixel location, the color of the pixel is changed to red color and outputs a modified image that would fool the classifier. 
 
 #Testing, Correctness, Verification
+\\
 The One Pixel Algorithm was tested with multiple images to see if it fools the classifier. 
 The algorithm was able to run, however, it took a long time when running DEoptim function, so we were not able to check if the modified image is fooling the classifier. 
 In order to fix that, we have decreased the number of candidate solutions and max iterations. 
