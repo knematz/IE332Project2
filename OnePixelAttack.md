@@ -23,6 +23,7 @@ This, in fact, made the algorithm run very fast but was not capable of fooling t
 If batch processing or parallelization was used, theoretically it would successfully fool the data; it enables multiple computations to be performed simultaneously which would reduce the time without adjusting the number of iterations. 
 Supposing everything worked without any error, the algorithm would be able to run the classifier with a single red pixel at the optimized location within a short period of time.
 <br> 
+
 #Runtime and Walltime Complexity<br> 
 This algorithm’s runtime complexity depends on the number of iterations and the search space. 
 However, this algorithm took more than thirty minutes to run. 
@@ -31,6 +32,7 @@ Also, it may be because the DEoptim function has 50 candidate solutions and 1000
 Therefore the run time complexity would be O(NP*itermax*search space size*computation time per function evaluation). 
 However, if batch or parallelization is used, it would have significantly decreased the time and hopefully takes less than 10 seconds
 <br> 
+
 #Performace<br> 
 The algorithm took more than thirty minutes to find the optimized pixel location, so it was uncertain to clarify if it was successful or not. 
 There are a few factors that might have an impact on the running time. 
