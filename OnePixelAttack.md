@@ -1,18 +1,14 @@
 # IE332Project2
 # INTRO - One Pixel Attack
 
-One Pixel Attack is a type of adversarial attack that can fool machine learning models by modifying a single pixel. 
-Because only one percent of the pixels could be changed, one pixel is chosen since it only changes a single pixel. 
-The algorithm uses an optimization process to find the pixel location and add it to the image. 
-It is considered a powerful attack for its minimal changes, transferability, high success rate, and low computational cost. 
-To create this algorithm, the objective function was defined; it takes the location of a pixel, model, image, and target class as inputs. 
-This function generates a modified image with pixel location and sets it to zero. 
-Then it reshapes the modified image to have a batch dimension of 1, predicts the class, and calculates the loss for the target class. 
-The image is loaded then loaded and resized to 224 by 224 and scaled the pixel values between 0 and 1. 
-Then it defines the search space and the bounds for such. 
-After defining the target class and setting the optimization control parameters, it performs differential evolution with the DEoptim function which takes the objective function, model, image, target class, bounds, and control parameters as inputs. 
-This function finds the best solution where it maximizes the loss which would be the best pixel location to modify. 
-With the optimized pixel location, the color of the pixel is changed to red color and outputs a modified image that would fool the classifier. 
+One Pixel Attack is a form of adversarial attack that uses a single modified pixel to fool the classifier. 
+Since it only changes one pixel, it fits under the one percent pixel constraint. 
+The algorithm finds the pixel location and adds it to the image using an optimization technique. Because of its few modifications, transferability, high success rate, and low computational cost, it is regarded as a powerful attack. 
+To develop this algorithm, the objective function which requires the location of pixel, model, image, and target class as inputs, was defined. 
+This function creates a modified image with pixel position and sets it to zero. 
+The updated image is then reshaped to have a batch dimension of 1, the class is predicted, and the loss for the intended class is calculated. 
+The image is then loaded, enlarged to 224 by 224 pixels, then scaled so that the pixel values range from 0 to 1. The search space and its bounds are then defined. 
+The DEoptim function, which accepts the objective function, model, picture, target class, bounds, and control parameters as inputs, is used to perform differential evolution after defining the target class and specifying the optimization control parameters. This function finds the best solution where it maximizes the loss which would be the best pixel location to alter. With the optimized pixel location, the color of the pixel is changed to red color and outputs a modified image that would fool the classifier. 
 <br> 
 
 #Testing, Correctness, Verification
@@ -42,9 +38,6 @@ If batch processing or parallelization is used correctly, it will allow the syst
 As a result, the algorithm would be able to run through all pixels and find the optimized location, modify a single pixel, change color to red, and would be able to fool the classifier with the modified image.
 
 #Justification<br> 
-Since the constraint was to change only one percent of the pixels, this algorithm would suit the descriptions the best. 
-This algorithm is modifying a single pixel which would be less than that of other adversarial attacks; it has a simpler concept. 
-Also, using Differential Evolution helps find the best location, which also increases the probability of fooling the model. 
-Not only does this algorithm have simplicity, but also the algorithm has a wide range of usages. 
-According to a study by Devansh (2020), Differential Evolution is cheap, can be applied to almost any problem, and can be customized easily to match any constraints. 
-Therefore, for such reasons, we have built this algorithm using Differential Evolution in order to fool the classifier which uses as few pixels as possible
+Since only one percent of the pixels could be modified, the one pixel attack would work the best; it only modifies a single pixel, which is much fewer pixels than that of other adversarial attacks.  
+This notion is by far the simplest among other attacks. Also, using differential evolution allows us to find the best location of a pixel to be altered, which would result in a higher chance of fooling the classifier. Moreover, a study by Devansh (2020) claims that the one pixel attack algorithm can be widely used; it could be used for almost any problem by customizing it to meet any constraint. 
+For such reasons, we believe that one pixel algorithm using differential evolution would be suitable for fooling the model.
