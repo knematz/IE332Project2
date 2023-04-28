@@ -1,0 +1,62 @@
+#FGSM FINAL
+#INITIALIZE
+library(reticulate)
+library(tidyverse)
+library(keras)
+library(tensorflow)
+library(imager)
+
+
+
+use_virtualenv("r-reticulate")
+# Load the original image
+image <- image_load("C:\\Users\\kylen\\OneDrive - purdue.edu\\Documents\\IE332Project2\\alldata\\TestImage\\TestImage2.jpg",
+                    target_size = target_size)
+x <- image_to_array(image)
+img <- x / 255
+
+# Load model
+model <- load_model_tf("C:\\Users\\kylen\\OneDrive - purdue.edu\\Documents\\IE332Project2\\dandelion_model")
+
+# loss function
+loss <- function(output, target) {
+  -log(output[target])
+}
+gradient <- function(f, x, target, model, eps=1e-4) {
+  # Compute the gradient
+  df_dx <- numeric(length(x))
+  for (i in seq_along(x)) {
+    dxi <- numeric(length(x))
+    dxi[i] <- eps
+    df_dx[i] <- (f(x + dxi, target) - f(x - dxi, target))/(2 * eps)
+  }
+  return(df_dx)
+}
+
+# FGSM function
+fgsm <- function(img, model, target, epsilon, pixel_ratio = .01) {
+  # gradient of the loss function, input image
+  grad <- gradient(loss, img, target, model, eps = 1e-4)
+  #perturbation as the sign of the gradient
+  pert <- epsilon * sign(grad)
+  #number of pixels to be changed
+  num_pixels <- round(pixel_ratio * prod(dim(img)[1:2]))
+  print(num_pixels)
+  # Randomly select the indices pixels
+  id1 <- sample(prod(dim(img)[1:2]), num_pixels)
+  # Add the perturbation
+  img_alt <- img
+  img_alt[id1] <- img[id1] + pert[id1]
+  # Clip the pixel values to the range [0, 1]
+  alt_img <- pmin(pmax(img_alt, 0), 1)
+  return(alt_img)
+}
+# Generate 
+target <- 2 # target label
+epsilon <- 0.01  # perturbation 
+alt_img <- fgsm(img, model, target, epsilon)
+
+#Test
+modified_image <- array_reshape(alt_img, c(1, dim(alt_img)))
+pred <- model %>% predict(modified_image)
+print(pred
